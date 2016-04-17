@@ -30,12 +30,17 @@ void proc_cpu_usage_gettime() {
     struct timespec gstart, gend;
     unsigned long long nsec;
 
+    // cat /sys/devices/system/clocksource/clocksource0/current_clocksource
+    // good:
+    //    x86: tsc
+    //    arm: arch_sys_counter (ARM Cortex A53)
+    // else the real resolution is microsec only (ARM Cortex A5)
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &gstart);
     testfunc();
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &gend);
 
     nsec = 1000*1000*1000*(gend.tv_sec - gstart.tv_sec) + gend.tv_nsec - gstart.tv_nsec;
-    printf("process   cpu  usage: %11.6f msec\n", nsec/1000./1000.);
+    printf("process   cpu  usage: %11.6f msec (very good if CPU has internal clock counter)\n", nsec/1000./1000.);
 }
 
 #include <sys/time.h>
