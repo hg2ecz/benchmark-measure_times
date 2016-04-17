@@ -1,15 +1,5 @@
 #include <stdio.h>
-#include <math.h>
-
-float testres=0;
-
-#include <unistd.h>
-void testfunc() {
-    int i;
-    for (i=0; i<100*1000; i++) testres+=sin(2*M_PI*i/1000.);
-//    sleep(1);
-    usleep(100*1000);
-}
+#include "benchmark_timetest.h"
 
 #include <time.h>
 void proc_cpu_usage_clock() {
@@ -17,7 +7,7 @@ void proc_cpu_usage_clock() {
     unsigned long usec;
 
     cstart=clock();
-    testfunc();
+    timetest();
     cend=clock();
 
     usec = cend - cstart;
@@ -36,7 +26,7 @@ void proc_cpu_usage_gettime() {
     //    arm: arch_sys_counter (ARM Cortex A53)
     // else the real resolution is microsec only (ARM Cortex A5)
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &gstart);
-    testfunc();
+    timetest();
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &gend);
 
     nsec = 1000*1000*1000*(gend.tv_sec - gstart.tv_sec) + gend.tv_nsec - gstart.tv_nsec;
@@ -49,7 +39,7 @@ void proc_elapsed_time() {
     unsigned long usec;
 
     gettimeofday(&tstart, NULL);
-    testfunc();
+    timetest();
     gettimeofday(&tend, NULL);
 
     usec = 1000*1000*(tend.tv_sec - tstart.tv_sec) + tend.tv_usec - tstart.tv_usec;
@@ -62,7 +52,7 @@ void proc_rusage() {
     unsigned long usec, sys_usec;
 
     getrusage(RUSAGE_SELF, &rstart);
-    testfunc();
+    timetest();
     getrusage(RUSAGE_SELF, &rend);
 
     usec = 1000*1000*(rend.ru_utime.tv_sec - rstart.ru_utime.tv_sec) + rend.ru_utime.tv_usec - rstart.ru_utime.tv_usec;
@@ -74,7 +64,7 @@ void proc_rusage() {
 // ----- MAIN -----
 
 void print_usage() {
-    testfunc();
+    timetest();
     proc_cpu_usage_clock();
     proc_cpu_usage_gettime();
     proc_elapsed_time();
@@ -83,6 +73,7 @@ void print_usage() {
 }
 
 int main() {
+    timetest_setup();
     print_usage();
     print_usage();
     print_usage();
