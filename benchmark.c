@@ -2,12 +2,12 @@
 #include "benchmark_timetest.h"
 
 #include <time.h>
-void proc_cpu_usage_clock() {
+void proc_cpu_usage_clock(int argc, char **argv) {
     clock_t cstart, cend;
     unsigned long usec;
 
     cstart=clock();
-    timetest();
+    timetest(argc, argv);
     cend=clock();
 
     usec = cend - cstart;
@@ -16,7 +16,7 @@ void proc_cpu_usage_clock() {
 
 
 #include <time.h>
-void proc_cpu_usage_gettime() {
+void proc_cpu_usage_gettime(int argc, char **argv) {
     struct timespec gstart, gend;
     unsigned long long nsec;
 
@@ -26,7 +26,7 @@ void proc_cpu_usage_gettime() {
     //    arm: arch_sys_counter (ARM Cortex A53)
     // else the real resolution is microsec only (ARM Cortex A5)
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &gstart);
-    timetest();
+    timetest(argc, argv);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &gend);
 
     nsec = 1000*1000*1000*(gend.tv_sec - gstart.tv_sec) + gend.tv_nsec - gstart.tv_nsec;
@@ -34,12 +34,12 @@ void proc_cpu_usage_gettime() {
 }
 
 #include <sys/time.h>
-void proc_elapsed_time() {
+void proc_elapsed_time(int argc, char **argv) {
     struct timeval tstart, tend;
     unsigned long usec;
 
     gettimeofday(&tstart, NULL);
-    timetest();
+    timetest(argc, argv);
     gettimeofday(&tend, NULL);
 
     usec = 1000*1000*(tend.tv_sec - tstart.tv_sec) + tend.tv_usec - tstart.tv_usec;
@@ -47,12 +47,12 @@ void proc_elapsed_time() {
 }
 
 #include <sys/resource.h>
-void proc_rusage() {
+void proc_rusage(int argc, char **argv) {
     struct rusage rstart, rend;
     unsigned long usec, sys_usec;
 
     getrusage(RUSAGE_SELF, &rstart);
-    timetest();
+    timetest(argc, argv);
     getrusage(RUSAGE_SELF, &rend);
 
     usec = 1000*1000*(rend.ru_utime.tv_sec - rstart.ru_utime.tv_sec) + rend.ru_utime.tv_usec - rstart.ru_utime.tv_usec;
@@ -63,19 +63,19 @@ void proc_rusage() {
 
 // ----- MAIN -----
 
-void print_usage() {
-    timetest();
-    proc_cpu_usage_clock();
-    proc_cpu_usage_gettime();
-    proc_elapsed_time();
-    proc_rusage();
+void print_usage(int argc, char **argv) {
+    timetest(argc, argv);
+    proc_cpu_usage_clock(argc, argv);
+    proc_cpu_usage_gettime(argc, argv);
+    proc_elapsed_time(argc, argv);
+    proc_rusage(argc, argv);
     printf("\n");
 }
 
-int main() {
-    timetest_setup();
-    print_usage();
-    print_usage();
-    print_usage();
+int main(int argc, char **argv) {
+    timetest_setup(argc, argv);
+    print_usage(argc, argv);
+    print_usage(argc, argv);
+    print_usage(argc, argv);
     return 0;
 }
